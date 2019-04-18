@@ -1,12 +1,12 @@
 %% Start by simulating the behavior of 1 stage with given parameters
-% effi = function(gauge,n,C,D,V0) 
+% effi = function(gauge,n,C,D,V0)
 runcycle=1000
 runduration=0.10
 L= 50000%in uH
 C= 650%in uF
 n= 1000 % winding count
 Rcoil= 15 % in ohms
-Rpara= 1 
+Rpara= 1
 R=Rcoil+Rpara
 
 a=R/(2*L*10^-6)
@@ -38,7 +38,6 @@ D=1 %mm starting offset
 Icyc=zeros(runcycle,1)
 Idis=zeros(runcycle,1)
 Iflywheel=zeros(runcycle,1)
-
 Vcyc=zeros(runcycle,1)
 
 t=linspace(0,runduration,runcycle)
@@ -59,7 +58,7 @@ Iflywheel(insersion:runcycle)=Idis(1:runcycle-insersion+1)
 %Iflywheel=ones(runcycle,1) %eq cal trick
 
 % plot(t,Icyc)
-% hold on 
+% hold on
 % plot(t,Iflywheel)
 % Calculate b field
 test_force=(n*Iflywheel).^2*u0*caliber*10.^-6/2/(D*10^-3)^2;
