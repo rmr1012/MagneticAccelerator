@@ -33,7 +33,7 @@ class Solenoid:
                  space_permeability: float = 4 * math.pi * 10 ** -7,
                  copper_resistance: float = 1.68 * 10 ** -8):
         """
-
+        TODO: complete doc.
         :param num_layers: Number of layers of wires for this solenoid.
         :param coil_width: The width of the solenoid in mm.
         :param inner_dia: Inner diameter of the passage for the projectile.
@@ -57,7 +57,7 @@ class Solenoid:
              * calculate_diameter(layer, float_inner_dia, wire_dia)
              * turns_per_layer for layer in range(float_num_layers)])
 
-        self.permeability: FloatTensor = sum(
+        self.inductance: FloatTensor = sum(
             [calculate_layer_permiability(
                 turns_per_layer,
                 space_permeability,
