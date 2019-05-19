@@ -57,6 +57,9 @@ class Solenoid:
              * calculate_diameter(layer, float_inner_dia, wire_dia)
              * turns_per_layer for layer in range(float_num_layers)])
 
+        self.num_turns: IntTensor = turns_per_layer * num_layers
+        self.coil_width: FloatTensor = coil_width
+
         self.inductance: FloatTensor = sum(
             [calculate_layer_permiability(
                 turns_per_layer,

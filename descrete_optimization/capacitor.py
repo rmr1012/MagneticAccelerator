@@ -1,5 +1,4 @@
 import tensorflow as tf
-from typing import List
 
 IntTensorVar = tf.Variable
 FloatTensorVar = tf.Variable
@@ -26,7 +25,7 @@ class Capacitor:
                 self.capacitance * 10 ** -6) * self.initial_voltage ** 2
 
     @tf.function
-    def discretized_current_curve(self, time_range: List[int],
+    def discretized_current_curve(self, time_range: FloatTimeSeriesTensor,
                                   inductance: FloatTensor,
                                   fundamental_frequency: FloatTensor,
                                   dampening_factor: FloatTensor) \
