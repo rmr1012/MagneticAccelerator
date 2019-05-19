@@ -24,4 +24,4 @@ class Projectile:
         self.relative_permeability: float = relative_permeability
         self.cross_sectional_area: float = math.pi * diameter
         self.max_force = saturation ** 2 * self.cross_sectional_area \
-                         * 10 ** -6 / 2 / space_permeability
+                         * 10 ** -6 / (2 * space_permeability)

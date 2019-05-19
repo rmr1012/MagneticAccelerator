@@ -9,7 +9,7 @@ FloatTimeSeriesTensor = tf.Tensor  # Dtype tf.float, shape [num_time_steps]
 
 class Capacitor:
 
-    def __init__(self, initial_voltage: FloatTensor, capacitance: float,
+    def __init__(self, initial_voltage: float, capacitance: float,
                  esr: float = 0):
         """
         TODO: complete doc.

@@ -87,9 +87,3 @@ def calculate_layer_permiability(turns_per_layer: IntTensor,
                                  wire_dia: FloatTensor) -> FloatTensor:
     return turns_per_layer ** 2 * permeability * (diameter * 10 ** -3 / 2) * (
             tf.math.log(8 * diameter / wire_dia) - 2)
-
-
-if __name__ == "__main__":
-    num_layers: tf.Variable = tf.Variable(2, dtype=tf.int32)
-    coil_width: tf.Variable = tf.Variable(20, dtype=tf.float32)
-    solenoid: Solenoid = Solenoid(num_layers, coil_width)
