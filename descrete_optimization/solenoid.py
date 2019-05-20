@@ -52,7 +52,7 @@ class Solenoid:
         wire_length: IntTensor = sum([math.pi * calculate_diameter(layer, inner_dia, wire_dia)
                                       * turns_per_layer for layer in range(float_num_layers)])
 
-        self.num_turns: IntTensor = tf.dtypes.cast(turns_per_layer, tf.int32) * num_layers
+        self.num_turns: FloatTensor = turns_per_layer * tf.dtypes.cast(num_layers, tf.float32)
         self.coil_width: FloatTensor = coil_width
 
         self.inductance: FloatTensor = sum(
