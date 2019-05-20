@@ -21,62 +21,52 @@ class Solenoid:
          0.1798, 0.1601, 0.1426, 0.1270,
          0.1131, 0.1007, 0.0897, 0.0799], dtype=tf.float32)
 
-    gauge2dia: tf.lookup.StaticHashTable = tf.lookup.StaticHashTable(
-        tf.lookup.KeyValueTensorInitializer(tf.range(1, 41, dtype=tf.int32),
-                                            wire_diameter), -1)
+    gauge2dia_mm: tf.lookup.StaticHashTable = tf.lookup.StaticHashTable(
+        tf.lookup.KeyValueTensorInitializer(tf.range(1, 41, dtype=tf.int32), wire_diameter), -1)
 
     def __init__(self,
                  num_layers: IntTensorVar,
                  coil_width: FloatTensorVar,
-                 inner_dia: FloatTensorVar = tf.Variable(5, dtype=tf.int32),
+                 inner_dia: FloatTensorVar = tf.Variable(0.005, dtype=tf.float32),
                  gauge: IntTensorVar = tf.Variable(28, dtype=tf.int32),
                  space_permeability: float = 4 * math.pi * 10 ** -7,
                  copper_resistance: float = 1.68 * 10 ** -8):
         """
         TODO: complete doc.
         :param num_layers: Number of layers of wires for this solenoid.
-        :param coil_width: The width of the solenoid in mm.
+        :param coil_width: The width of the solenoid in m.
         :param inner_dia: Inner diameter of the passage for the projectile.
         :param gauge: Wire gauge.
         :param space_permeability: Permeability of the space.
         """
 
-        float_num_layers = tf.dtypes.cast(num_layers, tf.float32)
-        float_inner_dia: FloatTensorVar = tf.dtypes.cast(inner_dia, tf.float32)
-        wire_dia: FloatTensor = self.gauge2dia.lookup(gauge)
+        float_num_layers: FloatTensor = tf.dtypes.cast(num_layers, tf.float32)
+        wire_dia: FloatTensor = self.gauge2dia_mm.lookup(gauge) * 10 ** -3
         ''' Unused properties in optimization but useful to know.
         num_turns: IntTensor = turns_per_layer * float_num_layers
         outer_dia: FloatTensor = float_inner_dia + \
                                        float_num_layers * wire_dia * 2
         '''
-        turns_per_layer: IntTensor = tf.math.ceil(
-            coil_width / wire_dia)
+        turns_per_layer: IntTensor = tf.math.ceil(coil_width / wire_dia)
 
-        wire_length: IntTensor = sum(
-            [math.pi
-             * calculate_diameter(layer, float_inner_dia, wire_dia)
-             * turns_per_layer for layer in range(float_num_layers)])
+        wire_length: IntTensor = sum([math.pi * calculate_diameter(layer, inner_dia, wire_dia)
+                                      * turns_per_layer for layer in range(float_num_layers)])
 
-        self.num_turns: IntTensor = turns_per_layer * num_layers
+        self.num_turns: IntTensor = tf.dtypes.cast(turns_per_layer, tf.int32) * num_layers
         self.coil_width: FloatTensor = coil_width
 
         self.inductance: FloatTensor = sum(
             [calculate_layer_permiability(
                 turns_per_layer,
                 space_permeability,
-                calculate_diameter(layer, float_inner_dia, wire_dia),
-                wire_dia)
-                for layer in range(float_num_layers)]) * 10 ** 6  # H to uH
+                calculate_diameter(layer, inner_dia, wire_dia),
+                wire_dia) for layer in range(float_num_layers)])  # Henry
 
-        self.resistance: FloatTensor = \
-            copper_resistance * wire_length * 10 ** -3 / \
-            (math.pi * (wire_dia * 10 ** -3 / 2) ** 2)
+        self.resistance: FloatTensor = copper_resistance * wire_length / (math.pi * (wire_dia / 2) ** 2)
 
 
 @tf.function
-def calculate_diameter(layer: int,
-                       inner_dia: FloatTensorVar,
-                       wire_dia: FloatTensor) -> FloatTensor:
+def calculate_diameter(layer: int, inner_dia: FloatTensorVar, wire_dia: FloatTensor) -> FloatTensor:
     return inner_dia + 2 * layer * wire_dia
 
 
@@ -85,5 +75,4 @@ def calculate_layer_permiability(turns_per_layer: IntTensor,
                                  permeability: float,
                                  diameter: FloatTensor,
                                  wire_dia: FloatTensor) -> FloatTensor:
-    return turns_per_layer ** 2 * permeability * (diameter * 10 ** -3 / 2) * (
-            tf.math.log(8 * diameter / wire_dia) - 2)
+    return turns_per_layer ** 2 * permeability * (diameter * 10 / 2) * (tf.math.log(8 * diameter / wire_dia) - 2)
