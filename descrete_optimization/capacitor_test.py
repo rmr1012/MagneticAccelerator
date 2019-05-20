@@ -1,5 +1,5 @@
 import unittest
-import descrete_optimization.capacitor as cap
+from descrete_optimization import Capacitor
 import tensorflow as tf
 import numpy as np
 
@@ -7,10 +7,10 @@ import numpy as np
 class TestCapacitor(unittest.TestCase):
 
     def test_capacitor_current_curve(self):
-        capacitor: cap.Capacitor = cap.Capacitor(15, 650, 0)
-        self.assertAlmostEqual(capacitor.energy, 73125)
+        cap: Capacitor = Capacitor(15, 650, 0)
+        self.assertAlmostEqual(cap.energy, 73125)
         self.assertTrue(np.allclose(
-            capacitor.discretized_current_curve(tf.linspace(0.0, 0.01, 10),
+            cap.discretized_current_curve(tf.linspace(0.0, 0.01, 10),
                                                 tf.constant(5, tf.float32),
                                                 tf.constant(0.5, tf.float32),
                                                 tf.constant(0.2, tf.float32)),

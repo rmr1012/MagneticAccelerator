@@ -25,19 +25,19 @@ class Stage:
     def calculate_efficiency(self, duration: float,
                              num_steps: int) -> FloatTensor:
         dt: float = duration / num_steps
-        time_steps: FloatTimeSeriesTensor = tf.linspace(0, duration, num_steps)
+        time_steps: FloatTimeSeriesTensor = tf.linspace(0.0, duration, num_steps)
         flywheel_current: FloatTimeSeriesTensor = \
             self._discretized_flywheel_current_curve(time_steps)
         vel: FloatTensor = tf.constant(0, dtype=tf.float32)
         pos: FloatTensor = tf.constant(0, dtype=tf.float32)  # meters
-        for i in range(1, num_steps):
-            if pos < self._coil_offset:  # Before entering he coil.
+        for i in tf.range(1, num_steps, dtype=tf.int32):
+            if tf.less(pos, self._coil_offset):  # Before entering he coil.
                 force: FloatTensor = \
                     ((self._solenoid.num_turns * flywheel_current[i]) ** 2
                      * self._space_permeability
                      * self._projectile.cross_sectional_area) \
                     / (2 * (self._coil_offset - pos) ** 2)
-            elif pos - self._coil_offset <= self._solenoid.coil_width:
+            elif tf.less_equal(pos - self._coil_offset, self._solenoid.coil_width):
                 # In coil.
                 force: FloatTensor = \
                     (.5 - ((pos - self._coil_offset)
