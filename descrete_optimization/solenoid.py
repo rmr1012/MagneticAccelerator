@@ -40,7 +40,6 @@ class Solenoid:
         :param space_permeability: Permeability of the space.
         """
 
-        float_num_layers: FloatTensor = tf.dtypes.cast(num_layers, tf.float32)
         wire_dia: FloatTensor = self.gauge2dia_mm.lookup(gauge) * 10 ** -3
         turns_per_layer: IntTensor = tf.math.ceil(coil_width / wire_dia)
         ''' Unused properties in optimization but useful to know.
@@ -48,9 +47,9 @@ class Solenoid:
                                        float_num_layers * wire_dia * 2
         '''
         wire_length: IntTensor = sum([math.pi * calculate_diameter(layer, inner_dia, wire_dia)
-                                      * turns_per_layer for layer in range(float_num_layers)])
+                                      * turns_per_layer for layer in tf.range(num_layers)])
 
-        self.num_turns: FloatTensor = turns_per_layer * tf.dtypes.cast(num_layers, tf.float32)
+        self.num_turns: FloatTensor = turns_per_layer * tf.cast(num_layers, tf.float32)
         self.coil_width: FloatTensor = coil_width
 
         self.inductance: FloatTensor = sum(
@@ -58,14 +57,14 @@ class Solenoid:
                 turns_per_layer,
                 space_permeability,
                 calculate_diameter(layer, inner_dia, wire_dia),
-                wire_dia) for layer in range(float_num_layers)])  # Henry
+                wire_dia) for layer in tf.range(num_layers)])  # Henry
 
         self.resistance: FloatTensor = copper_resistance * wire_length / (math.pi * (wire_dia / 2) ** 2)
 
 
 @tf.function
-def calculate_diameter(layer: int, inner_dia: FloatTensorVar, wire_dia: FloatTensor) -> FloatTensor:
-    return inner_dia + 2 * layer * wire_dia
+def calculate_diameter(layer: IntTensor, inner_dia: FloatTensorVar, wire_dia: FloatTensor) -> FloatTensor:
+    return inner_dia + 2 * tf.cast(layer, tf.float32) * wire_dia
 
 
 @tf.function

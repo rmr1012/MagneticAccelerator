@@ -22,6 +22,7 @@ class Stage:
         self._coil_offset = offset  # meters
         self._space_permeability: float = space_permeability
 
+    @tf.function
     def calculate_efficiency(self, duration: float, num_steps: int):
         dt = duration / num_steps
         time_steps = tf.linspace(0.0, duration, num_steps)
@@ -59,6 +60,7 @@ class Stage:
 
         return 0.5 * self._projectile.mass * vel ** 2 / self._capacitor.energy
 
+    @tf.function
     def _discretized_flywheel_current_curve(
             self, time_range: FloatTimeSeriesTensor) -> FloatTimeSeriesTensor:
         dampening_factor: FloatTensor = \
