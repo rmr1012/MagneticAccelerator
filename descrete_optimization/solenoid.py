@@ -42,13 +42,11 @@ class Solenoid:
 
         float_num_layers: FloatTensor = tf.dtypes.cast(num_layers, tf.float32)
         wire_dia: FloatTensor = self.gauge2dia_mm.lookup(gauge) * 10 ** -3
+        turns_per_layer: IntTensor = tf.math.ceil(coil_width / wire_dia)
         ''' Unused properties in optimization but useful to know.
-        num_turns: IntTensor = turns_per_layer * float_num_layers
         outer_dia: FloatTensor = float_inner_dia + \
                                        float_num_layers * wire_dia * 2
         '''
-        turns_per_layer: IntTensor = tf.math.ceil(coil_width / wire_dia)
-
         wire_length: IntTensor = sum([math.pi * calculate_diameter(layer, inner_dia, wire_dia)
                                       * turns_per_layer for layer in range(float_num_layers)])
 
@@ -75,4 +73,4 @@ def calculate_layer_permiability(turns_per_layer: IntTensor,
                                  permeability: float,
                                  diameter: FloatTensor,
                                  wire_dia: FloatTensor) -> FloatTensor:
-    return turns_per_layer ** 2 * permeability * (diameter * 10 / 2) * (tf.math.log(8 * diameter / wire_dia) - 2)
+    return turns_per_layer ** 2 * permeability * (diameter / 2) * (tf.math.log(8 * diameter / wire_dia) - 2)

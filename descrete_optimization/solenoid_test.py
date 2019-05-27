@@ -10,7 +10,7 @@ class TestSolenoid(unittest.TestCase):
         coil_width: tf.Variable = tf.Variable(0.02, dtype=tf.float32)
         solenoid: Solenoid = Solenoid(num_layers, coil_width)
         print(solenoid.inductance.numpy())
-        self.assertAlmostEqual(solenoid.inductance.numpy(), 0.00076671123103833)
+        self.assertAlmostEqual(solenoid.inductance.numpy(), 0.000076671123103833)
         self.assertAlmostEqual(solenoid.resistance.numpy(), 0.4369790616788424)
 
 

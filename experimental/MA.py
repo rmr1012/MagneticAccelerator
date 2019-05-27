@@ -24,7 +24,7 @@ class Bullet:
         self.length=length #mm
         self.diameter=diameter #mm
         self.ur=ur #relative permeability
-        self.caliber=np.pi*self.diameter # crosssection area
+        self.caliber=np.pi*(self.diameter/2)**2  # crosssection area
         self.saturation=saturation   #saturation (Tesla)
     def getMaxForce(self):
         return self.saturation**2*self.caliber*10**-6/2/u0
@@ -48,12 +48,12 @@ class Coil:
         self.tpl=math.ceil(self.width/self.wireDia) # turns per layer
         self.width=self.tpl*self.wireDia # actual width
         self.layers=math.ceil(self.n/self.tpl)
-        self.outerDia=self.innerDia+2*(self.layers*self.wireDia)
+        self.outerDia=self.innerDia+2*(self.layers*self.wireDia)    # return inner_dia + 2 * layer * wire_dia
 
         remainingTurns=self.n
         self.wireLength=0
         for layer in range(self.layers):
-            D=self.innerDia+(layer+1)*self.wireDia
+            D=self.innerDia+2*layer*self.wireDia
             if remainingTurns>= self.tpl:
                 LayerL=self.tpl**2*u0*(D*10**-3/2)*(np.log(8*D/self.wireDia)-2)
                 layerl=D*math.pi*self.tpl
@@ -109,8 +109,7 @@ class Stage():
                 insersionPt=i
                 captured=1
         Iflywheel=Icyc
-        Iflywheel[insersionPt:runcycle]=Idis[0:runcycle-insersionPt]
-
+        Iflywheel[insersionPt:runcycle]=Idis[insersionPt:]
 
         #simulate force transient
         iterr = iter(range(runcycle))
@@ -152,8 +151,7 @@ class Stage():
     #
         outenergy=0.5*(self.bullet.m*10**-3)*v[-1]**2;
         inenergy=self.capacitor.getEnergy()
-        effi=100*outenergy/inenergy
-        return effi
+        return outenergy/inenergy
     #
     # def getRawForce(self,dis,I): # dis datums at coil start
     #     if dis*1000<0:
@@ -165,10 +163,11 @@ class Stage():
     #     return force
 if __name__=="__main__":
 
-    myCoil=Coil(2000,5,20,28)#n,innerDia,width,gauge
+    myCoil=Coil(189,5,20,28)#n,innerDia,width,gauge
     print(myCoil.L)
     ironBall=Bullet(15,5,5) #m,length,diameter,ur=6.3*10**-3,saturation=0.75):
     stage1Cap=Cap(15,650) #,voltage,capacitance,esr=0):
 
     stage1=Stage(myCoil,stage1Cap,ironBall,1) #1mm offset
     effi=stage1.simulate(0.01,1000)
+    print(effi)
