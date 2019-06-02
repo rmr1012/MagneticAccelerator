@@ -1,23 +1,28 @@
 import tensorflow as tf
+from typing import NamedTuple
 from descrete_optimization import Capacitor, Projectile, Solenoid, Stage
-from typing import List
 
 
-@tf.function
-def optimize_stage(efficiency: tf.Tensor, trainable_var: List[tf.Variable], optimizer: tf.optimizers.Optimizer):
-    with tf.GradientTape() as tape:
-        gradients = tape.gradient(-efficiency, trainable_var)
-        optimizer.apply_gradients(zip(gradients, trainable_var))
+class OptimizationParams(NamedTuple):
+    num_layers: tf.Tensor
+    coil_width: tf.Tensor
+    inner_dia: tf.Tensor
+    gauge: tf.Tensor
+    stage: Stage
 
 
-if __name__ == "__main__":
-    num_layers: tf.Variable = tf.Variable(2, name="num_layers", dtype=tf.int32)
-    coil_width: tf.Variable = tf.Variable(0.1, name="coil_width", dtype=tf.float32)
-    solenoid = Solenoid(num_layers, coil_width)
+def create_stage() -> OptimizationParams:
+    num_layers: tf.Tensor = tf.random.uniform([], minval=1, maxval=10, dtype=tf.int32)
+    coil_width: tf.Tensor = tf.random.uniform([], minval=0.01, maxval=0.5, dtype=tf.float32)
+    inner_dia: tf.Tensor = tf.constant(0.005, dtype=tf.float32)
+    gauge: tf.Tensor = tf.random.uniform([], minval=1, maxval=41, dtype=tf.int32)
+    solenoid = Solenoid(num_layers, coil_width, inner_dia, gauge)
     capacitor = Capacitor(15, 650 * 10 ** -6)
     projectile = Projectile(0.015, 0.005)
     stage: Stage = Stage(solenoid, capacitor, projectile, 0.001)
+    return OptimizationParams(num_layers, coil_width, inner_dia, gauge, stage)
 
-    optimizer: tf.optimizers.Optimizer = tf.optimizers.Adam()
-    efficiency: tf.Tensor = stage.calculate_efficiency(0.01, 1000)
-    optimize_stage(efficiency, [num_layers, coil_width], optimizer)
+
+if __name__ == "__main__":
+    opt_params: OptimizationParams = create_stage()
+    print([opt_params.stage.calculate_efficiency(0.25, 2500).result() for i in range(20)])

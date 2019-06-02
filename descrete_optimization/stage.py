@@ -4,7 +4,6 @@ from descrete_optimization import Projectile
 
 import tensorflow as tf
 import math
-import matplotlib.pyplot as plt
 
 IntTensor = tf.Tensor
 FloatTensor = tf.Tensor

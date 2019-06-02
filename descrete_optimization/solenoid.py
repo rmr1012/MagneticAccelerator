@@ -25,10 +25,10 @@ class Solenoid:
         tf.lookup.KeyValueTensorInitializer(tf.range(1, 41, dtype=tf.int32), wire_diameter), -1)
 
     def __init__(self,
-                 num_layers: IntTensorVar,
-                 coil_width: FloatTensorVar,
-                 inner_dia: FloatTensorVar = tf.Variable(0.005, dtype=tf.float32),
-                 gauge: IntTensorVar = tf.Variable(28, dtype=tf.int32),
+                 num_layers: IntTensor = tf.constant(2, dtype=tf.int32),
+                 coil_width: FloatTensor = tf.constant(0.1, dtype=tf.float32),
+                 inner_dia: FloatTensor = tf.constant(0.005, dtype=tf.float32),
+                 gauge: IntTensor = tf.constant(28, dtype=tf.int32),
                  space_permeability: float = 4 * math.pi * 10 ** -7,
                  copper_resistance: float = 1.68 * 10 ** -8):
         """
