@@ -11,6 +11,8 @@ class OptimizationParams(NamedTuple):
     gauge: tf.Tensor
     stage: Stage
     offset: tf.Variable
+    def __str__():
+        return str(num_layers.numpy())+"lrs "+str(num_layers.numpy())+"w(m) "+str(capacitance.numpy())+"F "+str(gauge.numpy())+"AWG "+str(offset.numpy())+"m"
 
 
 def create_stage() -> OptimizationParams:
@@ -46,4 +48,4 @@ if __name__ == "__main__":
         opt_params: OptimizationParams = create_stage()
         for i in range(NUM_TRAIN_STEPS):
             loss = train_step(optimizer, opt_params)
-            print("step ", i, " - loss: ", loss.numpy(), "\t width: ", opt_params.coil_width.numpy())
+            print("step ", i, " - loss: ", loss.numpy(), "\t width: ", opt_params.coil_width.numpy(), str(opt_params))
