@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 u0=4*math.pi*10**-7 #vacuum permeability
 rpoCopper=1.68*10**-8
+
+VERBOSE= False
 class Cap:
     v0=0
     v=0 # time domain vector
@@ -117,13 +119,16 @@ class Stage():
         for i in iterr:
             if dis[i-1]*1000<self.offset:
                 force[i]=(self.coil.n*Iflywheel[i])**2*u0*self.bullet.caliber*10**-6/2/((self.offset*10**-3-dis[i-1]))**2
-                print('before %.4f %.4f %d',dis[i-1],force[i],i)
+                if VERBOSE:
+                    print('before %.4f %.4f %d',dis[i-1],force[i],i)
             elif (self.offset-dis[i-1]*1000 <= 0 and dis[i-1]*1000-self.offset <= self.coil.width ): # if in coil
                 force[i]=(.5-((dis[i-1]*10**3-self.offset)/self.coil.width))*2* (self.bullet.ur*u0*self.coil.n*Iflywheel[i])**2*self.bullet.caliber*10**-6/2/u0
-                print('within %.4f %.4f %d',dis[i-1],.5-((dis[i-1]*10**3-self.offset)/self.coil.width),i)
+                if VERBOSE:
+                    print('within %.4f %.4f %d',dis[i-1],.5-((dis[i-1]*10**3-self.offset)/self.coil.width),i)
             elif dis[i-1]*1000-self.offset-self.coil.width>0:
                 force[i]=-(self.coil.n*Iflywheel[i])**2*u0*self.bullet.caliber*10**-6/2/((dis[i-1]-self.offset*10**-3-self.coil.width*10**-3))**2
-                print('beyond %.4f %.4f %d',dis[i-1],force[i],i)
+                if VERBOSE:
+                    print('beyond %.4f %.4f %d',dis[i-1],force[i],i)
 
             force_raw[i]=force[i];
             if force[i]>0:
@@ -162,12 +167,22 @@ class Stage():
     #         force=-(self.coil.n*I)**2*u0*self.bullet.caliber*10**-6/2/((dis-self.coil.width*10**-3))**2
     #     return force
 if __name__=="__main__":
+    #
+    myCoil=Coil(100,5,25,22)#n,innerDia,width,gauge
+    print("L: "+ str(myCoil.L)+"uH")
+    print("R: "+ str(myCoil.R)+"Ohms")
+#     print(myCoil.L)
+#     ironBall=Bullet(2.9,19,4.76) #m,length,diameter,ur=6.3*10**-3,saturation=0.75):
+#     #2.9g, 19mm long, 4.76 mm diameter
+#     stage1Cap=Cap(20,1200,0.1) #,voltage,capacitance,esr=0):
 
-    myCoil=Coil(189,5,20,28)#n,innerDia,width,gauge
-    print(myCoil.L)
-    ironBall=Bullet(15,5,5) #m,length,diameter,ur=6.3*10**-3,saturation=0.75):
-    stage1Cap=Cap(15,650) #,voltage,capacitance,esr=0):
+#     stage1=Stage(myCoil,stage1Cap,ironBall,1) #1mm offset
+#     effi=stage1.simulate(0.01,1000)
+#     print(effi)
 
-    stage1=Stage(myCoil,stage1Cap,ironBall,1) #1mm offset
-    effi=stage1.simulate(0.01,1000)
-    print(effi)
+#     xsweep=np.linspace(20,250,100)
+#     ysweep=np.linspace(-1,5,100)
+#     resultMatrix=np.zeros([100,100])
+#     for xindex,n in enumerate(xsweep):
+#         for yindex,offset in enumerate(ysweep):
+#             resultMatrix[xindex,yindex][]
