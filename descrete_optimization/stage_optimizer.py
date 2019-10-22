@@ -26,7 +26,7 @@ def create_stage() -> OptimizationParams:
     inner_dia: tf.Tensor = tf.constant(0.005, dtype=tf.float32)
     gauge: tf.Tensor = tf.random.uniform([], minval=15, maxval=41, dtype=tf.int32) # gauge 15-41
     solenoid = Solenoid(num_layers, coil_width, inner_dia, gauge)
-    capacitor = Capacitor(20, capacitance, esr=0.05) #20V
+    capacitor = Capacitor(20, capacitance, esr=0.02) #20V
     projectile = Projectile(mass=0.0027, diameter=0.00476) #2.7g $ 4.76mm diameter
     stage: Stage = Stage(solenoid, capacitor, projectile, offset)
     return OptimizationParams(num_layers, coil_width, capacitance, inner_dia, gauge, stage, offset)

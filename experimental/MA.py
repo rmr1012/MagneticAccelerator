@@ -60,13 +60,17 @@ class Coil:
             else:
                 LayerL=remainingTurns**2*u0*(D*10**-3/2)*(np.log(8*D/self.wireDia)-2)
                 layerl=D*math.pi*remainingTurns
-            print(LayerL, layerl)
+#             print(LayerL, layerl)
             self.L+= LayerL
             self.wireLength +=layerl
             remainingTurns=remainingTurns-self.tpl
         self.L=self.L * 10**6 # H to uH
         self.R=rpoCopper*self.wireLength*10**-3/(math.pi*(self.wireDia*10**-3/2)**2)
-
+    def report(self):
+        print("R: "+str(self.R))
+        print("L: "+str(self.L)+" uH")
+        print(str(self.n)+" turns")
+        print(str(self.layers)+" layers @"+ str(self.tpl)+"TPL")
 
 
 
@@ -163,11 +167,32 @@ class Stage():
     #     return force
 if __name__=="__main__":
 
-    myCoil=Coil(189,5,20,28)#n,innerDia,width,gauge
-    print(myCoil.L)
-    ironBall=Bullet(15,5,5) #m,length,diameter,ur=6.3*10**-3,saturation=0.75):
-    stage1Cap=Cap(15,650) #,voltage,capacitance,esr=0):
+    myCoil=Coil(90,8.05,25.4,23)#n,innerDia(mm),width,gauge
+#     myCoil.report()
+    
+    BattV=20
+    ChR=0.2
+    MMFs=np.empty([10,10])
+#     for x,width in enumerate(np.linspace(10,50,10)):
+    for y,gauge in enumerate(range(16,26)):
+        for z,turns in enumerate(np.linspace(30,400,10)):
+            myCoil=Coil(turns,8.05,25.4,gauge)#n,innerDia(mm),width,gauge
+            totalR=ChR+myCoil.R
+            disI=BattV/totalR
+            MMF=disI*turns
+#                 print(x,y,z)
+            MMFs[y,z]=MMF
 
-    stage1=Stage(myCoil,stage1Cap,ironBall,1) #1mm offset
-    effi=stage1.simulate(0.01,1000)
-    print(effi)
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    hf = plt.figure()
+    X, Y = np.meshgrid(np.linspace(30,400,10),range(16,26))
+    ha = hf.add_subplot(111, projection='3d')
+    ha.plot_surface(X, Y, MMFs)
+    plt.show()
+#     ironBall=Bullet(15,5,5) #m,length,diameter,ur=6.3*10**-3,saturation=0.75):
+#     stage1Cap=Cap(15,650) #,voltage,capacitance,esr=0):
+
+#     stage1=Stage(myCoil,stage1Cap,ironBall,1) #1mm offset
+#     effi=stage1.simulate(0.01,1000)
+#     print(effi)
